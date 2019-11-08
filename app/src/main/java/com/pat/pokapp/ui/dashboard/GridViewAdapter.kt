@@ -6,11 +6,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
+import android.widget.ImageView
 import android.widget.TextView
-import androidx.recyclerview.widget.RecyclerView
 import com.pat.pokapp.R
+import com.pat.pokapp.entity.Pokemon
+import com.squareup.picasso.Picasso
 
-class ListViewAdapter(private val list : ArrayList<String>, private val myContext: Context) : BaseAdapter() {
+class GridViewAdapter(private val list : ArrayList<Pokemon>, private val myContext: Context) : BaseAdapter() {
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View? {
         val view: View?
@@ -24,7 +26,9 @@ class ListViewAdapter(private val list : ArrayList<String>, private val myContex
             vh = view.tag as ListRowHolder
         }
 
-        vh.label.text = list[position]
+        vh.label.text = list[position].name
+        Picasso.get().load(list[position].url).into(vh.image)
+
 
         return view
     }
@@ -42,9 +46,12 @@ class ListViewAdapter(private val list : ArrayList<String>, private val myContex
     }
 
 
+
+
 }
 
 private class ListRowHolder(row: View?) {
     val label: TextView = row?.findViewById(R.id.textView_listView_item) as TextView
+    val image: ImageView = row?.findViewById(R.id.dashboard_pokemon_image) as ImageView
 
 }
