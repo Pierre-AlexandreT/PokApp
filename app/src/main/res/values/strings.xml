@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">pokApp</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Friends</string>
+    <string name="facebook_app_id">813599649097793</string>
+    <string name="fb_login_protocol_scheme">fb813599649097793</string>
+    <string name="addFriend">Ajouter un nouvel ami</string>
+
+</resources>
