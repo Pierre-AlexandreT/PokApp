@@ -1,8 +1,10 @@
 package com.pat.pokapp.controler
 
+import android.util.Log
 import com.google.gson.GsonBuilder
 import com.pat.pokapp.MyCallback
 import com.pat.pokapp.entity.Pokemon
+import com.pat.pokapp.entity.PokemonName
 import com.pat.pokapp.entity.Pokemons
 import com.pat.pokapp.services.RetrofitService
 
@@ -56,6 +58,24 @@ class PokemonController {
 
             override fun onResponse(call: Call<Pokemon>, response: Response<Pokemon>) {
                 if (response.body() != null) {
+                    myCallback.onSuccess(response.body()!!)
+                }
+            }
+
+        })
+    }
+
+    fun getApiPokemonName(myCallback: MyCallback){
+        val call = service.apiPokemonsName
+
+        call.enqueue(object: Callback<PokemonName> {
+            override fun onFailure(call: Call<PokemonName>, t: Throwable) {
+                myCallback.onError(t)
+            }
+
+            override fun onResponse(call: Call<PokemonName>, response: Response<PokemonName>) {
+                if (response.body() != null) {
+
                     myCallback.onSuccess(response.body()!!)
                 }
             }

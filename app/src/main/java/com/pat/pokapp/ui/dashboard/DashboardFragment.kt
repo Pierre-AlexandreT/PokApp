@@ -1,6 +1,9 @@
 package com.pat.pokapp.ui.dashboard
 
+import android.content.Context
+import android.inputmethodservice.Keyboard
 import android.os.Bundle
+import android.text.InputType
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -14,18 +17,28 @@ import com.pat.pokapp.R
 import com.pat.pokapp.MyCallback
 import com.pat.pokapp.controler.PokemonController
 import com.pat.pokapp.entity.Pokemons
-
+import android.widget.ArrayAdapter
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView.OnItemTouchListener
+import com.pat.pokapp.entity.PokemonName
 
 class DashboardFragment : Fragment() {
 
+    private lateinit var root: View
+
+    private val pokemonController = PokemonController()
+
     private lateinit var dashboardViewModel: DashboardViewModel
-    private lateinit var gridView: GridView
-    private lateinit var searchTextView: TextView
+    private lateinit var pokemonRecyclerView: RecyclerView
+    private lateinit var searchAutoCompleteTextView: AutoCompleteTextView
     private lateinit var searchBtn: ImageButton
     private var array: ArrayList<String> = arrayListOf("text1", "text2", "text3", "text4")
     private lateinit var progressBar: ProgressBar
-    private lateinit var gridViewAdapter: GridViewAdapter
-    private lateinit var listPokemons: ArrayList<Pokemon>
+    private lateinit var pokemonRecyclerViewAdapter: PokemonRecyclerViewAdapter
+    private var listPokemons: MutableList<Pokemon> = mutableListOf()
+    private lateinit var listPokemonName: ArrayList<String>
+    private var listener: PokemonDetailInterface? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -34,99 +47,122 @@ class DashboardFragment : Fragment() {
     ): View? {
         dashboardViewModel =
             ViewModelProviders.of(this).get(DashboardViewModel::class.java)
-        val root = inflater.inflate(R.layout.fragment_dashboard, container, false)
+        root = inflater.inflate(R.layout.fragment_dashboard, container, false)
         //val textView: TextView = root.findViewById(R.id.text_dashboard)
 //        dashboardViewModel.text.observe(this, Observer {
 //            textView.text = it
 //        })it
 
-        searchTextView = root.findViewById(R.id.searchTextView)
+        searchAutoCompleteTextView = root.findViewById(R.id.searchTextView)
 
         searchBtn = root.findViewById(R.id.searchButton)
 
         progressBar = root.findViewById(R.id.dashboar_progressbar)
 
-        gridView = root.findViewById(R.id.dashboardGrid)
+        pokemonRecyclerView = root.findViewById(R.id.dashboardGrid)
 
-
-
-        val pokemonController = PokemonController();
-
-        pokemonController.getPokemons(object : MyCallback() {
-            override fun onSuccess(value: Pokemons) {
-                listPokemons = value.results!!
-
-                listPokemons.let {
-
-                    gridViewAdapter = GridViewAdapter(listPokemons, root.context)
-                    gridView.adapter = gridViewAdapter
-                }
-
-                progressBar.visibility = View.INVISIBLE
-                Log.d("debug", "afficher")
-
-
-//                gridView.onItemClickListener =
-//                    AdapterView.OnItemClickListener { adapterView, view, i, l ->
-//                        for (j in 0 until speciesList.get(i).getPeople().size()) {
-//                            val p = Pattern.compile("\\d+")
-//                            val m = p.matcher(speciesList.get(i).getPeople().get(j))
-//                            var result = ""
-//                            while (m.find()) {
-//                                result += m.group()
-//                            }
-//
-//                            controller.getOnePeople(result) //string to int @todo je suis la
-//                        }
-//                    }
+        pokemonRecyclerView.layoutManager = GridLayoutManager(root.context, 2, LinearLayoutManager.VERTICAL, false)
+        pokemonRecyclerViewAdapter = PokemonRecyclerViewAdapter(root.context, object : OnClickRow{
+            override fun onClic(pokemonName: String) {
+                listener?.pokemonClicked(pokemonName)
             }
 
-            override fun onError(throwable: Throwable) {
-                Log.d("debug", throwable.toString())
-            }
+
         })
+
+        pokemonRecyclerView.adapter = pokemonRecyclerViewAdapter
+
+        displayPokemonList()
+
+        displaySearchSuggestion()
+
 
         searchBtn.setOnClickListener(View.OnClickListener {
             progressBar.visibility = View.VISIBLE
-            pokemonController.getApiPokemon(object :MyCallback() {
-                override fun onError(throwable: Throwable) {
-                    Log.d("debug", throwable.toString())
-                    progressBar.visibility = View.INVISIBLE
-                }
-
-                override fun onSuccess(value: Pokemon) {
-                    listPokemons= ArrayList<Pokemon>()
-                    listPokemons.add(value)
-
-                    listPokemons.let {
-                        gridViewAdapter.notifyDataSetChanged()
-                    }
-
-                    progressBar.visibility = View.INVISIBLE
-                    Log.d("debug", "afficher")
-
-
-//                gridView.onItemClickListener =
-//                    AdapterView.OnItemClickListener { adapterView, view, i, l ->
-//                        for (j in 0 until speciesList.get(i).getPeople().size()) {
-//                            val p = Pattern.compile("\\d+")
-//                            val m = p.matcher(speciesList.get(i).getPeople().get(j))
-//                            var result = ""
-//                            while (m.find()) {
-//                                result += m.group()
-//                            }
-//
-//                            controller.getOnePeople(result) //string to int @todo je suis la
-//                        }
-//                    }
-                }
-
-
-            },searchTextView.text.toString())
+            displaySearchedPokemon(searchAutoCompleteTextView.text.toString())
         })
 
 
         return root
 
     }
+
+    fun displayPokemonList() {
+        pokemonController.getPokemons(object : MyCallback() {
+            override fun onSuccess(value: Pokemons) {
+                listPokemons.clear()
+
+                value.results.let {
+                    listPokemons.addAll(it!!.asIterable())
+
+                    pokemonRecyclerViewAdapter.submitList(listPokemons)
+                }
+
+
+                progressBar.visibility = View.GONE
+            }
+
+            override fun onError(throwable: Throwable) {
+                Log.d("debugDashboard", throwable.toString())
+            }
+        })
+    }
+
+    fun displaySearchSuggestion() {
+        pokemonController.getApiPokemonName(object : MyCallback() {
+            override fun onError(throwable: Throwable) {
+                progressBar.visibility = View.INVISIBLE
+            }
+
+            override fun onSuccess(value: PokemonName) {
+                listPokemonName = value.results!!
+
+                val adapterPokemonName =
+                    ArrayAdapter(root.context, android.R.layout.simple_list_item_1, listPokemonName)
+
+                searchAutoCompleteTextView.setAdapter(adapterPokemonName)
+
+                // Set the minimum number of characters, to show suggestions
+                searchAutoCompleteTextView.setThreshold(3)
+
+                searchAutoCompleteTextView.setOnItemClickListener { parent, _, position, _ ->
+                    displaySearchedPokemon(parent.getItemAtPosition(position).toString())
+                }
+
+            }
+        })
+    }
+
+    fun displaySearchedPokemon(pokemonName: String) {
+        pokemonController.getApiPokemon(object : MyCallback() {
+            override fun onError(throwable: Throwable) {
+                Log.d("debugDashboard", throwable.toString())
+            }
+
+            override fun onSuccess(value: Pokemon) {
+                listPokemons.clear()
+                listPokemons.add(value)
+                pokemonRecyclerViewAdapter.submitList(listPokemons)
+                pokemonRecyclerViewAdapter.notifyDataSetChanged()
+            }
+        }, pokemonName)
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        if (context is PokemonDetailInterface) {
+            listener = context
+        } else {
+            throw RuntimeException("$context must implement PokemonDetailInterface")
+        }
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        listener = null
+    }
+}
+
+interface PokemonDetailInterface {
+    fun pokemonClicked(pokemonName: String)
 }

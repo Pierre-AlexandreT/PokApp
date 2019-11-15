@@ -1,6 +1,7 @@
 package com.pat.pokapp.services
 
 import com.pat.pokapp.entity.Pokemon
+import com.pat.pokapp.entity.PokemonName
 import com.pat.pokapp.entity.Pokemons
 
 import retrofit2.Call
@@ -12,8 +13,14 @@ interface RetrofitService {
     @get:GET("pokemons/list/20")
     val pokemons: Call<Pokemons>
 
+    @get:GET("pokemons/listname")
+    val apiPokemonsName: Call<PokemonName>
+
     @GET("pokemons/one/{name}")
     fun apiPokemon(@Path("name") name: String?) : Call<Pokemon>
+
+    @GET("pokemons/detail/{name}")
+    fun pokemonDetail(@Path("name") name: String?) : Call<Pokemon>
 
 
     //    @GET("peoples/{id}")
