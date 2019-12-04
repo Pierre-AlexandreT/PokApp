@@ -1,9 +1,7 @@
 package com.pat.pokapp.ui.dashboard
 
 import android.content.Context
-import android.inputmethodservice.Keyboard
 import android.os.Bundle
-import android.text.InputType
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -20,7 +18,6 @@ import com.pat.pokapp.entity.Pokemons
 import android.widget.ArrayAdapter
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView.OnItemTouchListener
 import com.pat.pokapp.entity.PokemonName
 
 class DashboardFragment : Fragment() {
@@ -63,8 +60,8 @@ class DashboardFragment : Fragment() {
 
         pokemonRecyclerView.layoutManager = GridLayoutManager(root.context, 2, LinearLayoutManager.VERTICAL, false)
         pokemonRecyclerViewAdapter = PokemonRecyclerViewAdapter(root.context, object : OnClickRow{
-            override fun onClic(pokemonName: String) {
-                listener?.pokemonClicked(pokemonName)
+            override fun onClic(pokemon: String) {
+                listener?.pokemonClicked(pokemon)
             }
 
 

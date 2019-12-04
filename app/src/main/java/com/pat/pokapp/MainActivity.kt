@@ -11,20 +11,20 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.pat.pokapp.ui.dashboard.PokemonDetailInterface
 
-
-
-
-
 class MainActivity : AppCompatActivity(), PokemonDetailInterface, PokemonDetail.OnFragmentInteractionListener {
     override fun onFragmentInteraction(uri: Uri) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun closeFragment() {
+            supportFragmentManager.popBackStack()
     }
 
     override fun pokemonClicked(pokemonName: String) {
         val fragmentTransaction = supportFragmentManager.beginTransaction()
 
         fragmentTransaction.add(R.id.nav_host_fragment, PokemonDetail.newInstance(pokemonName))
-
+        fragmentTransaction.addToBackStack(null)
 //        fragmentTransaction.addToBackStack("Frag1$firstFragCount")
         fragmentTransaction.commit()
     }

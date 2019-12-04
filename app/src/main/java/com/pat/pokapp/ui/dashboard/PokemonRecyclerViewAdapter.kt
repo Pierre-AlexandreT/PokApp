@@ -30,7 +30,7 @@ class PokemonRecyclerViewAdapter(private val myContext: Context, val listener: O
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         Log.d("debugRecyclerview",getItem(position).name )
         holder.label.text = getItem(position).name
-        Picasso.get().load(getItem(position).url).into(holder.image)
+        Picasso.get().load(getItem(position).sprites).into(holder.image)
 
         holder.itemView.setOnClickListener{
 

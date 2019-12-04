@@ -1,8 +1,8 @@
 package com.pat.pokapp.services
 
-import com.pat.pokapp.entity.Pokemon
-import com.pat.pokapp.entity.PokemonName
-import com.pat.pokapp.entity.Pokemons
+import com.pat.pokapp.entity.*
+import com.pat.pokapp.entity.User.User
+import com.pat.pokapp.entity.User.Users
 
 import retrofit2.Call
 import retrofit2.http.GET
@@ -26,4 +26,8 @@ interface RetrofitService {
     //    @GET("peoples/{id}")
     //    Call<Contacts.People> getPeople(@Path("id") Integer id);
 
+    /************************************************************************/
+
+    @get:GET("users/isRegistered/{token}")
+    val isRegistered: Call<Users>
 }
