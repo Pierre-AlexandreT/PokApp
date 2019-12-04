@@ -10,15 +10,14 @@ import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.RecyclerView
-import com.pat.pokapp.entity.Pokemon
 import com.pat.pokapp.R
 import com.pat.pokapp.MyCallback
 import com.pat.pokapp.controler.PokemonController
-import com.pat.pokapp.entity.Pokemons
 import android.widget.ArrayAdapter
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.pat.pokapp.entity.PokemonName
+import com.pat.pokapp.entity.*
 
 class DashboardFragment : Fragment() {
 
@@ -33,7 +32,7 @@ class DashboardFragment : Fragment() {
     private var array: ArrayList<String> = arrayListOf("text1", "text2", "text3", "text4")
     private lateinit var progressBar: ProgressBar
     private lateinit var pokemonRecyclerViewAdapter: PokemonRecyclerViewAdapter
-    private var listPokemons: MutableList<Pokemon> = mutableListOf()
+    private var listPokemons = ArrayList<PreviewPokemon>()
     private lateinit var listPokemonName: ArrayList<String>
     private var listener: PokemonDetailInterface? = null
 
@@ -45,12 +44,12 @@ class DashboardFragment : Fragment() {
         dashboardViewModel =
             ViewModelProviders.of(this).get(DashboardViewModel::class.java)
         root = inflater.inflate(R.layout.fragment_dashboard, container, false)
-        //val textView: TextView = root.findViewById(R.id.text_dashboard)
+//        val textView: TextView = root.findViewById(R.id.text_dashboard)
 //        dashboardViewModel.text.observe(this, Observer {
 //            textView.text = it
-//        })it
+//        })
 
-        searchAutoCompleteTextView = root.findViewById(R.id.searchTextView)
+        searchAutoCompleteTextView = root.findViewById<AutoCompleteTextView>(R.id.searchTextView)
 
         searchBtn = root.findViewById(R.id.searchButton)
 
@@ -59,7 +58,7 @@ class DashboardFragment : Fragment() {
         pokemonRecyclerView = root.findViewById(R.id.dashboardGrid)
 
         pokemonRecyclerView.layoutManager = GridLayoutManager(root.context, 2, LinearLayoutManager.VERTICAL, false)
-        pokemonRecyclerViewAdapter = PokemonRecyclerViewAdapter(root.context, object : OnClickRow{
+        pokemonRecyclerViewAdapter = PokemonRecyclerViewAdapter(root.context, object : OnClickRow {
             override fun onClic(pokemon: String) {
                 listener?.pokemonClicked(pokemon)
             }
@@ -68,16 +67,14 @@ class DashboardFragment : Fragment() {
         })
 
         pokemonRecyclerView.adapter = pokemonRecyclerViewAdapter
-
-        displayPokemonList()
-
         displaySearchSuggestion()
-
 
         searchBtn.setOnClickListener(View.OnClickListener {
             progressBar.visibility = View.VISIBLE
             displaySearchedPokemon(searchAutoCompleteTextView.text.toString())
         })
+
+        displayPokemonList()
 
 
         return root
@@ -85,22 +82,25 @@ class DashboardFragment : Fragment() {
     }
 
     fun displayPokemonList() {
+        progressBar.visibility = View.VISIBLE
         pokemonController.getPokemons(object : MyCallback() {
-            override fun onSuccess(value: Pokemons) {
-                listPokemons.clear()
+            override fun onError(throwable: Throwable) {
+                progressBar.visibility = View.GONE
+                Log.d("debugDashboard", throwable.toString())
+            }
+
+            override fun onSuccess(value: PreviewPokemons) {
 
                 value.results.let {
+                    listPokemons.clear()
                     listPokemons.addAll(it!!.asIterable())
-
                     pokemonRecyclerViewAdapter.submitList(listPokemons)
+                    pokemonRecyclerViewAdapter.notifyDataSetChanged()
                 }
 
 
                 progressBar.visibility = View.GONE
-            }
 
-            override fun onError(throwable: Throwable) {
-                Log.d("debugDashboard", throwable.toString())
             }
         })
     }
@@ -108,10 +108,13 @@ class DashboardFragment : Fragment() {
     fun displaySearchSuggestion() {
         pokemonController.getApiPokemonName(object : MyCallback() {
             override fun onError(throwable: Throwable) {
-                progressBar.visibility = View.INVISIBLE
+                progressBar.visibility = View.GONE
+                Log.d("debugDashboard", throwable.toString())
+
             }
 
             override fun onSuccess(value: PokemonName) {
+
                 listPokemonName = value.results!!
 
                 val adapterPokemonName =
@@ -130,19 +133,28 @@ class DashboardFragment : Fragment() {
         })
     }
 
-    fun displaySearchedPokemon(pokemonName: String) {
-        pokemonController.getApiPokemon(object : MyCallback() {
+    fun displaySearchedPokemon(searchTerm: String) {
+        progressBar.visibility = View.VISIBLE
+        pokemonController.searchPokemons(object : MyCallback() {
             override fun onError(throwable: Throwable) {
+                progressBar.visibility = View.GONE
                 Log.d("debugDashboard", throwable.toString())
             }
 
-            override fun onSuccess(value: Pokemon) {
-                listPokemons.clear()
-                listPokemons.add(value)
-                pokemonRecyclerViewAdapter.submitList(listPokemons)
-                pokemonRecyclerViewAdapter.notifyDataSetChanged()
+            override fun onSuccess(value: PreviewPokemons) {
+
+                value.results.let {
+                    listPokemons.clear()
+                    listPokemons.addAll(it!!.asIterable())
+                    pokemonRecyclerViewAdapter.submitList(listPokemons)
+                    pokemonRecyclerViewAdapter.notifyDataSetChanged()
+                }
+
+
+                progressBar.visibility = View.GONE
+
             }
-        }, pokemonName)
+        }, searchTerm)
     }
 
     override fun onAttach(context: Context) {

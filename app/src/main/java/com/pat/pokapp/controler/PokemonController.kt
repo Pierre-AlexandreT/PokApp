@@ -2,6 +2,7 @@ package com.pat.pokapp.controler
 
 import android.util.Log
 import com.google.gson.GsonBuilder
+import com.pat.pokapp.BuildConfig
 import com.pat.pokapp.MyCallback
 import com.pat.pokapp.entity.Pokemon
 import com.pat.pokapp.entity.PokemonName
@@ -17,6 +18,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.logging.HttpLoggingInterceptor
 import java.io.IOException
 
 
@@ -26,9 +28,21 @@ class PokemonController {
     private var pokeApiService: RetrofitPokeApiService
 
     init {
+
+        val hli = HttpLoggingInterceptor()
+        if (BuildConfig.DEBUG) {
+            hli.level = HttpLoggingInterceptor.Level.BODY
+        } else {
+            hli.level = HttpLoggingInterceptor.Level.NONE
+        }
+        val client = OkHttpClient.Builder()
+            .addInterceptor(hli)
+            .build()
+
         val retrofitApi = Retrofit.Builder()
             .baseUrl("http://10.0.2.2:8001/web/index.php/")
             .addConverterFactory(GsonConverterFactory.create())
+            .client(client)
             .build()
 
         myApiService = retrofitApi.create(RetrofitService::class.java)
@@ -42,6 +56,25 @@ class PokemonController {
 
     }
 
+    fun searchPokemons(myCallback: MyCallback, searchTerm: String){
+        val call = myApiService.pokemonSearch(searchTerm)
+
+        call.enqueue(object: Callback<PreviewPokemons>{
+            override fun onFailure(call: Call<PreviewPokemons>, t: Throwable) {
+                myCallback.onError(t)
+            }
+
+            override fun onResponse(call: Call<PreviewPokemons>, response: Response<PreviewPokemons>) {
+                if (response.body() != null) {
+                    myCallback.onSuccess(response.body()!!)
+                }
+            }
+
+        })
+    }
+
+
+
     /**
      * get la liste minimal des pokemons (nom + img)
      */
@@ -49,14 +82,14 @@ class PokemonController {
 
         val call = myApiService.pokemons
 
-        call.enqueue(object : Callback<Pokemons> {
-            override fun onResponse(call: Call<Pokemons>, response: Response<Pokemons>) {
+        call.enqueue(object : Callback<PreviewPokemons> {
+            override fun onResponse(call: Call<PreviewPokemons>, response: Response<PreviewPokemons>) {
                 if (response.body() != null) {
                     myCallback.onSuccess(response.body()!!)
                 }
             }
 
-            override fun onFailure(call: Call<Pokemons>, t: Throwable) {
+            override fun onFailure(call: Call<PreviewPokemons>, t: Throwable) {
                 myCallback.onError(t)
             }
         })

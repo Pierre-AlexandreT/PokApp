@@ -1,6 +1,8 @@
 package com.pat.pokapp.login
 
+import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -15,15 +17,21 @@ import com.facebook.login.widget.LoginButton
 import com.pat.pokapp.MainActivity
 import com.facebook.AccessToken
 import com.pat.pokapp.MyCallback
+import com.pat.pokapp.PokemonDetail
+import com.pat.pokapp.controler.PokemonController
 import com.pat.pokapp.controler.UserController
-import com.pat.pokapp.entity.Pokemons
 import com.pat.pokapp.entity.User.User
-import com.pat.pokapp.entity.User.Users
 import kotlinx.android.synthetic.main.activity_login.*
 
-class Login : AppCompatActivity() {
+class Login : AppCompatActivity(),FinishAccountCreation.OnFragmentInteractionListener {
+    override fun onFragmentInteraction(uri: Uri) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
 
     private val callbackManager: CallbackManager = CallbackManager.Factory.create()
+
+    private val userController = UserController()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,40 +39,19 @@ class Login : AppCompatActivity() {
 
         val loginButton: LoginButton = findViewById(R.id.login_button)
 
-        initComponent()
         //loginButton.
         //loginButton.setReadPermissions("email")
         // If using in a fragment
 
         // Callback registration
+        //displayAdditionnalElement("sdhsglkjsdglkj")
         loginButton.registerCallback(callbackManager, object : FacebookCallback<LoginResult> {
             override fun onSuccess(loginResult: LoginResult) {
 
-                val userCOntroller = UserController()
-                userCOntroller.userIsRegistered(object : MyCallback() {
-                    override fun onSuccess(value: Users) {
-                        value.results?.get(0).let {
-
-                            if(value.results!![0].id == null){
-                                editText_pseudo.visibility = View.VISIBLE
-                                validate_pseudo.visibility = View.VISIBLE
-                            }else{
-                                Log.d("debugDashboard2", "startNewIntent")
-                            }
-                        }
+                displayAdditionnalElement(loginResult.accessToken.userId)
 
 
-
-                        //progressBar.visibility = View.GONE
-                    }
-                    override fun onError(throwable: Throwable) {
-                        Log.d("debugDashboard", throwable.toString())
-                    }
-                })
-
-//                val intent = Intent(applicationContext,MainActivity::class.java)
-//                intent.putExtra("INTENT_ACCESS_TOKEN", loginResult.accessToken)
-//                startActivity(intent)
+                //launchActivity(loginResult.accessToken.token)
             }
 
             override fun onCancel() {
@@ -76,14 +63,11 @@ class Login : AppCompatActivity() {
             }
         })
 
-        val accessToken = AccessToken.getCurrentAccessToken()
-        val isLoggedIn = accessToken != null && !accessToken.isExpired
-        if (isLoggedIn) {
-            Log.d("debugLogin", "logged in")
-//            val intent = Intent(applicationContext,MainActivity::class.java)
-//            intent.putExtra("INTENT_ACCESS_TOKEN", accessToken.token)
-//            startActivity(intent)
-        }
+//        val accessToken = AccessToken.getCurrentAccessToken()
+//        if (accessToken != null && !accessToken.isExpired) {
+//            launchActivity(accessToken.token)
+//        }
+        launchActivity("kjshdkgf")
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -91,8 +75,30 @@ class Login : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
     }
 
-    private fun initComponent(){
-        editText_pseudo.visibility = View.GONE
-        validate_pseudo.visibility = View.GONE
+    private fun launchActivity(fbUserId: String){
+        val intent = Intent(applicationContext,MainActivity::class.java)
+        intent.putExtra("INTENT_ACCESS_TOKEN", fbUserId)
+        startActivity(intent)
     }
+
+    private fun displayAdditionnalElement(fbUserId: String){
+        userController.userIsRegistered(object : MyCallback() {
+            override fun onError(throwable: Throwable) {
+                Log.d("debugLogin", throwable.toString())
+            }
+
+            override fun onSuccess(value: User) {
+
+                if(value.pseudo == null) {
+                    val fragmentTransaction = supportFragmentManager.beginTransaction()
+                    fragmentTransaction.add(R.id.fragment_finish_account, FinishAccountCreation.newInstance(fbUserId))
+                    fragmentTransaction.addToBackStack(null)
+                    fragmentTransaction.commit()
+                }else{
+                    launchActivity(fbUserId)
+                }
+            }
+        }, fbUserId)
+    }
+
 }

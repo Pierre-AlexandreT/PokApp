@@ -4,14 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/backgroundColor"
+    style="@style/ScreenBackground"
     android:layout_gravity="center">
 
     <AutoCompleteTextView
         android:id="@+id/searchTextView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="5dp"
         android:gravity="center"
         android:hint="@string/research"
         android:singleLine="true"

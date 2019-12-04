@@ -7,21 +7,20 @@
     android:orientation="vertical">
 
     <androidx.cardview.widget.CardView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        style="@style/CardViewStyle"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:layout_gravity='center'
-        android:elevation="1dp"
-        app:cardCornerRadius="10dp"
-        app:cardUseCompatPadding="true"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            style="@style/CardBackground"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@color/secondaryBackgroundColor">
+            android:layout_height="match_parent">
 
             <TextView
                 android:id="@+id/textView_listView_item"

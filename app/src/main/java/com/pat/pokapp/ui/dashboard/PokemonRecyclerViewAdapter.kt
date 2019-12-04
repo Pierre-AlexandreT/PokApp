@@ -12,9 +12,10 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.pat.pokapp.R
 import com.pat.pokapp.entity.Pokemon
+import com.pat.pokapp.entity.PreviewPokemon
 import com.squareup.picasso.Picasso
 
-class PokemonRecyclerViewAdapter(private val myContext: Context, val listener: OnClickRow) : ListAdapter<Pokemon, PokemonRecyclerViewAdapter.ViewHolder>(
+class PokemonRecyclerViewAdapter(private val myContext: Context, val listener: OnClickRow) : ListAdapter<PreviewPokemon, PokemonRecyclerViewAdapter.ViewHolder>(
     DiffCallbackGridViewAdapter()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -30,7 +31,7 @@ class PokemonRecyclerViewAdapter(private val myContext: Context, val listener: O
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         Log.d("debugRecyclerview",getItem(position).name )
         holder.label.text = getItem(position).name
-        Picasso.get().load(getItem(position).sprites).into(holder.image)
+        Picasso.get().load(getItem(position).imgUrl).into(holder.image)
 
         holder.itemView.setOnClickListener{
 
@@ -46,12 +47,12 @@ class PokemonRecyclerViewAdapter(private val myContext: Context, val listener: O
 
     }
 
-    class DiffCallbackGridViewAdapter: DiffUtil.ItemCallback<Pokemon>(){
-        override fun areItemsTheSame(oldItem: Pokemon, newItem: Pokemon): Boolean {
+    class DiffCallbackGridViewAdapter: DiffUtil.ItemCallback<PreviewPokemon>(){
+        override fun areItemsTheSame(oldItem: PreviewPokemon, newItem: PreviewPokemon): Boolean {
             return oldItem == newItem
         }
 
-        override fun areContentsTheSame(oldItem: Pokemon, newItem: Pokemon): Boolean {
+        override fun areContentsTheSame(oldItem: PreviewPokemon, newItem: PreviewPokemon): Boolean {
             return oldItem.equals(newItem)
         }
 
