@@ -8,7 +8,9 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
+import androidx.fragment.app.FragmentManager
 import com.pat.pokapp.controler.PokemonController
 import com.pat.pokapp.entity.Pokemon
 import com.squareup.picasso.Picasso
@@ -47,13 +49,16 @@ class PokemonDetail : Fragment() {
         savedInstanceState: Bundle?
 
 
-
-
     ): View? {
         // Inflate the layout for this fragment
         root = inflater.inflate(R.layout.fragment_pokemon_detail, container, false)
         val textViewPokemonName = root.findViewById<TextView>(R.id.textView_pokemon_name)
-        textViewPokemonName.text=pokemonName
+        textViewPokemonName.text = pokemonName
+
+        val iconClose = root.findViewById<ImageView>(R.id.pokemon_detail_close_icon)
+        iconClose.setOnClickListener {
+            listener?.closeFragment()
+        }
 
         pokemonController.getApiPokemon(object : MyCallback() {
             override fun onError(throwable: Throwable) {
@@ -61,14 +66,10 @@ class PokemonDetail : Fragment() {
             }
 
             override fun onSuccess(value: Pokemon) {
-                textViewPokemonName.text=pokemonName
-                Picasso.get().load(value.url).into(dashboard_pokemon_detail_image)
+                textViewPokemonName.text = pokemonName
+                Picasso.get().load(value.sprites).into(dashboard_pokemon_detail_image)
             }
         }, pokemonName!!)
-
-
-
-
 
         return root
     }
@@ -106,7 +107,9 @@ class PokemonDetail : Fragment() {
     interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         fun onFragmentInteraction(uri: Uri)
+        fun closeFragment()
     }
+
 
     companion object {
         @JvmStatic
