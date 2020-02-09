@@ -20,6 +20,9 @@ abstract class MyCallback {
 
     open fun onSuccess(value: Users) {}
 
+    open fun onSuccess(value: User) {}
+
+
     //public void onSuccessGetPeople(@NonNull People value){}
 
     abstract fun onError(throwable: Throwable)

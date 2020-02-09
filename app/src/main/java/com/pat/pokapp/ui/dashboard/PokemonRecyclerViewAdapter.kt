@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.pat.pokapp.R
 import com.pat.pokapp.entity.Pokemon
+import com.pat.pokapp.entity.PreviewPokemon
 import com.squareup.picasso.Picasso
 
 class PokemonRecyclerViewAdapter(private val myContext: Context, val listener: OnClickRow) : ListAdapter<Pokemon, PokemonRecyclerViewAdapter.ViewHolder>(
@@ -30,7 +31,6 @@ class PokemonRecyclerViewAdapter(private val myContext: Context, val listener: O
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         Log.d("debugRecyclerview",getItem(position).name )
         holder.label.text = getItem(position).name
-        Picasso.get().load(getItem(position).sprites).into(holder.image)
 
         holder.itemView.setOnClickListener{
 

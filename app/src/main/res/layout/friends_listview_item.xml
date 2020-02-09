@@ -9,14 +9,12 @@
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#E41313"
-        app:cardBackgroundColor="#3187CC">
+        android:layout_height="wrap_content">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/secondaryBackgroundColor"
+            style="@style/CardBackground"
             android:padding="10dp">
 
             <TextView
@@ -26,8 +24,7 @@
                 android:layout_marginStart="16dp"
                 android:gravity="center"
                 android:text="TextView"
-                android:textColor="@color/primaryTextColor"
-                android:textSize="15sp"
+                style="@style/SecondarytextView"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/imageView4"
                 app:layout_constraintHorizontal_bias="0.0"
@@ -41,8 +38,6 @@
                 android:background="@color/secondaryBackgroundColor"
                 android:backgroundTintMode="add"
                 android:src="@mipmap/icon_account"
-                android:tint="#00FFFFFF"
-                android:tintMode="src_atop"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -52,11 +47,7 @@
                 android:layout_width="33dp"
                 android:layout_height="30dp"
                 android:layout_marginEnd="8dp"
-                android:background="@color/secondaryBackgroundColor"
-                android:backgroundTintMode="add"
                 android:src="@mipmap/icon_pokeball"
-                android:tint="#00FFFFFF"
-                android:tintMode="src_atop"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/textView2"
                 app:layout_constraintTop_toTopOf="parent" />

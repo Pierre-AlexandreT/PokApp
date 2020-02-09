@@ -10,4 +10,5 @@ class Pokemons {
         @Expose
         var results: ArrayList<Pokemon>? = null
 
+
 }

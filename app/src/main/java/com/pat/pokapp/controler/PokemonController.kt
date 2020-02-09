@@ -2,6 +2,7 @@ package com.pat.pokapp.controler
 
 import android.util.Log
 import com.google.gson.GsonBuilder
+import com.pat.pokapp.BuildConfig
 import com.pat.pokapp.MyCallback
 import com.pat.pokapp.entity.Pokemon
 import com.pat.pokapp.entity.PokemonName
@@ -17,6 +18,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.logging.HttpLoggingInterceptor
 import java.io.IOException
 
 
@@ -26,9 +28,21 @@ class PokemonController {
     private var pokeApiService: RetrofitPokeApiService
 
     init {
+
+        val hli = HttpLoggingInterceptor()
+        if (BuildConfig.DEBUG) {
+            hli.level = HttpLoggingInterceptor.Level.BODY
+        } else {
+            hli.level = HttpLoggingInterceptor.Level.NONE
+        }
+        val client = OkHttpClient.Builder()
+            .addInterceptor(hli)
+            .build()
+
         val retrofitApi = Retrofit.Builder()
-            .baseUrl("http://10.0.2.2:8001/web/index.php/")
+            .baseUrl("http://web/index.php/")
             .addConverterFactory(GsonConverterFactory.create())
+            .client(client)
             .build()
 
         myApiService = retrofitApi.create(RetrofitService::class.java)
@@ -36,36 +50,17 @@ class PokemonController {
         val retrofitPokeApi = Retrofit.Builder()
             .baseUrl("https://pokeapi.co/api/v2/")
             .addConverterFactory(GsonConverterFactory.create())
+            .client(client)
             .build()
 
         pokeApiService = retrofitPokeApi.create(RetrofitPokeApiService::class.java)
 
     }
 
-    /**
-     * get la liste minimal des pokemons (nom + img)
-     */
-    fun getPokemons(myCallback: MyCallback) {
+    fun searchPokemons(myCallback: MyCallback, searchTerm: String) {
+        val call = pokeApiService.pokemon(searchTerm)
 
-        val call = myApiService.pokemons
-
-        call.enqueue(object : Callback<Pokemons> {
-            override fun onResponse(call: Call<Pokemons>, response: Response<Pokemons>) {
-                if (response.body() != null) {
-                    myCallback.onSuccess(response.body()!!)
-                }
-            }
-
-            override fun onFailure(call: Call<Pokemons>, t: Throwable) {
-                myCallback.onError(t)
-            }
-        })
-    }
-
-    fun getApiPokemon(myCallback: MyCallback, name:String){
-        val call = myApiService.apiPokemon(name)
-
-        call.enqueue(object: Callback<Pokemon> {
+        call.enqueue(object : Callback<Pokemon> {
             override fun onFailure(call: Call<Pokemon>, t: Throwable) {
                 myCallback.onError(t)
             }
@@ -79,10 +74,48 @@ class PokemonController {
         })
     }
 
-    fun getApiPokemonName(myCallback: MyCallback){
+
+    /**
+     * get la liste minimal des pokemons (nom + img)
+     */
+    fun getPokemons(myCallback: MyCallback) {
+
+        val call = myApiService.pokemons
+
+        call.enqueue(object : Callback<PreviewPokemons> {
+            override fun onResponse(call: Call<PreviewPokemons>, response: Response<PreviewPokemons>) {
+                if (response.body() != null) {
+                    myCallback.onSuccess(response.body()!!)
+                }
+            }
+
+            override fun onFailure(call: Call<PreviewPokemons>, t: Throwable) {
+                myCallback.onError(t)
+            }
+        })
+    }
+
+    fun getApiPokemon(myCallback: MyCallback, name: String) {
+        val call = myApiService.apiPokemon(name)
+
+        call.enqueue(object : Callback<Pokemon> {
+            override fun onFailure(call: Call<Pokemon>, t: Throwable) {
+                myCallback.onError(t)
+            }
+
+            override fun onResponse(call: Call<Pokemon>, response: Response<Pokemon>) {
+                if (response.body() != null) {
+                    myCallback.onSuccess(response.body()!!)
+                }
+            }
+
+        })
+    }
+
+    fun getApiPokemonName(myCallback: MyCallback) {
         val call = myApiService.apiPokemonsName
 
-        call.enqueue(object: Callback<PokemonName> {
+        call.enqueue(object : Callback<PokemonName> {
             override fun onFailure(call: Call<PokemonName>, t: Throwable) {
                 myCallback.onError(t)
             }
@@ -97,10 +130,10 @@ class PokemonController {
         })
     }
 
-    fun getPokeApiPokemonList(myCallback: MyCallback){
+    fun getPokeApiPokemonList(myCallback: MyCallback) {
         val call = pokeApiService.pokemonsList
 
-        call.enqueue(object: Callback<Pokemons> {
+        call.enqueue(object : Callback<Pokemons> {
             override fun onFailure(call: Call<Pokemons>, t: Throwable) {
                 myCallback.onError(t)
             }
@@ -114,4 +147,5 @@ class PokemonController {
 
         })
     }
+
 }

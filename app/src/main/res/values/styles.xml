@@ -8,14 +8,40 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="CardViewStyle">
+        <item name="android:elevation">1dp</item>
+        <item name="cardCornerRadius">10dp</item>
+        <item name="cardUseCompatPadding">true</item>
+    </style>
 
+    <style name="CardBackground">
+        <item name="android:background">@color/secondaryBackgroundColor</item>
+    </style>
 
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_gravity='center'
-    android:elevation="1dp"
-    app:cardCornerRadius="10dp"
-    app:cardUseCompatPadding="true"
+    <style name="ScreenBackground">
+        <item name="android:background">@color/backgroundColor</item>
+    </style>
+
+    <style name="TextView">
+        <item name="android:textAlignment">center</item>
+        <item name="android:textColor">@color/secondaryDarkColor</item>
+        <item name="android:textSize">20sp</item>
+    </style>
+
+    <style name="SecondarytextView">
+        <item name="android:textColor">@color/primaryTextColor</item>
+        <item name="android:textSize">15sp</item>
+    </style>
+
+    <style name="Button">
+        <item name="android:background">@drawable/btn_rounded</item>
+        <item name="android:textColor">@color/secondaryTextColor</item>
+    </style>
+
+    <style name="profileIcon">
+        <item name="android:background">@color/secondaryBackgroundColor</item>
+        <item name="android:backgroundTintMode">add</item>
+    </style>
 
 
 </resources>
